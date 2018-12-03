@@ -1,5 +1,6 @@
 from pyeasyga import pyeasyga
 import json
+import  MyAlgorythm as gen
 
 # Read file to list
 
@@ -18,6 +19,8 @@ data = []
 for x in content:
     data.append([float(n) for n in x.split()])
 
+
+# First task
 ga = pyeasyga.GeneticAlgorithm(data)  # initialise the GA with data
 ga.population_size = 500
 
@@ -41,7 +44,7 @@ result = ga.best_individual()
 
 weight = 0.0
 volume = 0.0
-json_result = []
+json_result = {}
 item_numbers = []
 
 i = 0
@@ -52,12 +55,30 @@ for x in data:
         volume += x[1]
     i += 1
 
-json_result.append({"value": int(result[0])})
-json_result.append({"weight": int(weight)})
-json_result.append({"volume": round(volume, 1)})
-json_result.append({"items": item_numbers})
+json_result = {"value": int(result[0]), "weight": int(weight), "volume": round(volume, 1), "items": item_numbers}
 
-json_dump = json.dumps(json_result, sort_keys=True, indent=2, separators=(',', ':'))
+# *************************************************************************
+# Second Task
+my_algorythm = gen.GeneticKnapsack(knapsack, data)
+second_task_result = my_algorythm.run()
+second_item_numbers = []
+second_json_result = {}
+
+weight = volume = 0
+i = 0
+for x in data:
+    if second_task_result['individual'][i] != 0:
+        second_item_numbers.append(i)
+        weight += x[0]
+        volume += x[1]
+    i += 1
+
+second_json_result = {"value": int(second_task_result['fitness']), "weight": int(weight), "volume": round(volume, 1), "items": second_item_numbers}
+
+final_result = {'1': json_result, '2': second_json_result }
+
+
+final_dump = json.dumps(final_result, sort_keys=False, indent=2, separators=(',', ':'))
 
 with open(OUTNAME, 'w+') as f:
-    f.write(json_dump)
+    f.write(final_dump)
